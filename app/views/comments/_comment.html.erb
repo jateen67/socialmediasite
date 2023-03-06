@@ -1,0 +1,55 @@
+<div>
+    <div class='d-flex'>
+        <div class='col-lg-1 text-center'>
+            <% if user_signed_in? %>
+                <% like = current_user.likes.find_by(likeable: comment) %>
+            <% end %>
+            <% if like.nil? %>
+                <%= button_to raw("<i class=\"fa fa-regular fa-thumbs-up fa-2x\"></i>"), likes_path, params: { like: { community_id: comment.community_id, likeable_id: comment.id, likeable_type: 'Comment' }}, method: :post, :class => "remove-border thumb" %>
+            <% else %>
+                <%= button_to raw("<i class=\"fa fa-solid fa-thumbs-up fa-2x\"></i>"), like_path(like), method: :delete, :class => "remove-border thumb" %>
+            <% end %>
+            <p class='mt-2'><%= comment.likes.count %></p>
+        </div>
+        <div class='col-lg-11'>
+            <% commenter = "#{User.find_by_id(comment.user_id).username}" %>
+            <small><%= link_to commenter, user_path(comment.user), :class => "text-decoration-none" %><small> &#8226; <%= time_ago_in_words comment.created_at %> ago</small></small>
+            <p class='mt-4'><%= comment.body %></p>
+            <div>
+                <div class='d-flex'>
+                <a href='#' class='reply-form-display text-decoration-none'><i class="fa-solid fa-reply"></i> Reply</a>
+                <% if user_signed_in? %>
+                    <% if current_user.id == comment.user_id %>
+                        <%= button_to raw("<i class=\"fa fa-solid fa-trash fa-1x\"></i> Delete"), community_post_comment_path(Community.find_by_id(comment.community_id), Post.find_by_id(comment.post_id), comment), method: :delete, :class => 'remove-border i-delete' %>
+                    <% end %>
+                <% end %>
+                </div>
+                <div class='reply-form'>
+                    <%= render partial: 'comments/form', locals: {community: comment.community_id , post: comment.post, parent: comment} %> <!-- locals found in comments/_form -->
+                </div>
+            </div>
+            <hr/>
+        </div>
+    </div>
+            <!-- iterate through all the replies-->
+    <div class='reply'>
+        <%= render comment.comments.order(id: :desc) %> <!-- format replies neatly -->
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.reply-form-display').forEach(e => {
+        e.addEventListener('click', event => {
+            event.preventDefault()
+            e.parentElement.nextElementSibling.style = 'display: block' // when each reply is clicked on the text field expands
+        })
+    })
+
+    document.querySelectorAll('.cancel').forEach(e => {
+        e.addEventListener('click', event => {
+            event.preventDefault()
+            e.parentElement.parentElement.style = 'display: none' 
+        })
+    })
+
+</script>

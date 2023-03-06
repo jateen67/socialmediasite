@@ -1,0 +1,15 @@
+<div class='container border rounded bg-light w-50 p-3'>
+    <%= form_for [@community, @post] do |form| %>
+        <div>
+            <%= form.label :title, :class => "mb-2" %>
+            <%= form.text_area :title, :class => "form-control", :rows => "1", :maxlength => "50", :required => true %>
+        </div>
+        <div>
+            <%= form.label :body, :class => "mt-2 mb-2" %>
+            <%= form.text_area :body, :class => "form-control", :rows => "10", :maxlength => "500", :required => true %>
+        </div>
+        <%= form.submit 'Create', :class => "btn btn-success w-100 mt-2 mb-2" %>
+        <%= link_to 'Back', :back, :class => "btn btn-primary w-100" %>
+    <% end %>
+</div>
+<!-- must include both community and post since youre generating url containing both these params-->

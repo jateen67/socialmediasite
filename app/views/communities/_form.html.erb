@@ -1,0 +1,14 @@
+<div class='container border rounded bg-light w-50 p-3'>
+    <%= form_for @community do |form| %>
+        <div>
+            <%= form.label :title, :class => "mb-2" %>
+            <%= form.text_area :title, :class => "form-control", :rows => "1", :maxlength => "35", :required => true %>
+        </div>
+        <div>
+            <%= form.label :description, :class => "mt-2 mb-2" %>
+            <%= form.text_area :description, :class => "form-control", :rows => "5", :maxlength => "250", :required => true  %>
+        </div>
+        <%= form.submit 'Create', :class => "btn btn-success w-100 mt-2 mb-2" %>
+        <%= link_to 'Back', :back, :class => "btn btn-primary w-100" %>
+    <% end %>
+</div>

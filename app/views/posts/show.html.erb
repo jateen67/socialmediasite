@@ -1,0 +1,104 @@
+<h1 class='text-center mt-5 mb-5'>&#8203;</h1>
+<i class="fa fa-solid fa-heart-break"></i>
+<div class='container-fluid border w-100 bg-light'>
+    <div class='row border'>
+        <div class='container col-lg-3'>
+            <div class='row border rounded m-2 mt-3 mb-3 pt-1 grey'>
+                <h4 class='mt-2 text-center'><%= @post.community.title %></h4> 
+                <div class='d-flex justify-content-around mt-2'>            
+                    <p><%= @post.community.subscriptions.count %> <%= "subscriber".pluralize(@post.community.subscriptions.count) %></p>
+                    <p>Created <%= @post.community.created_at.strftime("%m/%d/%Y") %></p>
+                </div>
+                <div class='d-grid mb-2'>
+                    <% if user_signed_in? %>
+                        <% subscription = current_user.subscriptions.find_by(community: @post.community) %>
+                    <% end %>
+                    <% if subscription.nil? %>
+                        <%= button_to raw("<i class=\"fa fa-solid fa-heart\"></i> Subscribe"), subscriptions_path, params: { subscription: { community_id: @post.community}}, method: :post, :class => "btn border border-3 border-danger heart text-center w-100" %>
+                    <% else %>
+                        <%= button_to raw("<i class=\"fa fa-solid fa-heart-crack\"></i> Unsubscribe"), subscription_path(subscription), method: :delete, :class => "btn border border-danger border-3 btn-danger text-center w-100" %>
+                    <% end %>
+                </div>
+                <div class='d-grid '>
+                    <%= link_to new_community_post_path(@post.community_id), class: "btn btn-success text-center mb-3" do %>
+                        <i class="fa fa-solid fa-circle-plus"></i>
+                        Create New Post Here
+                    <% end %>
+                </div>
+            </div>
+            <h3 class='text-center mt-5 mb-3'>Subscribed Communities</h3>
+            <table class='table table-striped'>
+                <thead>
+                    <tr>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if user_signed_in? %>
+                        <% if current_user.subscriptions.size > 0 %> <!-- must define posts to show controller in communities_controller to access posts -->
+                            <% current_user.subscriptions.each do |sub| %>
+                                <tr>
+                                    <td>
+                                        <%= link_to Community.find_by_id(sub.community_id).title, community_path(sub.community_id), :class => "text-decoration-none" %>
+                                    </td>
+                                </tr>
+                            <% end %>
+                        <% end %>
+                    <% else %>
+                        <tr>
+                            <td>
+                                <p class='text-center'>Sign in to see the communities you've hearted</p>
+                            </td>
+                        </tr>
+                    <% end %>
+                </tbody>
+            </table>
+            <div class='d-grid'>
+                <%= link_to communities_path, class: "btn btn-primary text-center mb-3" do %>
+                    <i class="fa fa-solid fa-magnifying-glass"></i>
+                    Browse All Communities
+                <% end %>
+            </div>
+        </div>
+        <div class='container col-lg-9'>
+            <div class='row border rounded m-2 mt-3 mb-3 pt-1 grey'>
+                <div class='col-lg-1 text-center mt-4'>
+                    <% if user_signed_in? %>
+                        <% like = current_user.likes.find_by(likeable: @post) %>
+                    <% end %>
+                    <% if like.nil? %>
+                        <%= button_to raw("<i class=\"fa fa-regular fa-thumbs-up fa-2x\"></i>"), likes_path, params: { like: { community_id: @post.community_id, likeable_id: @post.id, likeable_type: Post }}, method: :post, :class => 'remove-border thumb' %>
+                    <% else %>
+                        <%= button_to raw("<i class=\"fa fa-solid fa-thumbs-up fa-2x\"></i>"), like_path(like), method: :delete, :class => "remove-border thumb" %>
+                    <% end %>
+                    <p class='mt-3'><%= @post.likes.count %></p>
+                </div>
+                <div class='col-lg-10 mt-2'>
+                    <small>submitted <%= time_ago_in_words @post.created_at %> ago by <%= link_to @user, user_path(@post.user_id), :class => 'text-decoration-none' %> in <%= link_to @post.community.title, community_path(@post.community_id), :class => 'text-decoration-none' %></small>
+                    <h2><%= @post.title %></h2>
+                    <p class=' mt-5 mb-5'><%= @post.body %></p>
+                    <div class='d-flex mb-3'> 
+                        <% if user_signed_in? %>
+                            <% if current_user.id == @post.user_id %>
+                                <%= link_to edit_community_post_path(@post.community_id, @post), class: 'text-decoration-none' do %>
+                                    <i class="fa fa-solid fa-pen-to-square"></i>
+                                    Edit
+                                <% end %>
+                                <%= button_to raw("<i class=\"fa fa-solid fa-trash\"></i> Delete"), community_post_path(@post.community_id, @post), method: :delete, :class => "remove-border i-delete" %>
+                            <% end %>
+                        <% end %>
+                        <%= @post.comments.size %> <%= "comment".pluralize(@post.comments.size) %>
+                     </div>
+                </div>
+            </div>
+            <div class='row m-2'>
+                <h5>Comments (<%= @post.comments.size %>):</h5>
+                <%= render partial: 'comments/form', locals: { community: Community.find_by_id(@post.community_id), post: @post, parent: nil } %> <!-- top comment has no parent-->
+            </div>
+            <div class='row border rounded m-2 mt-3 mb-3 pt-1 grey'>
+            <p>
+                <%= render @post.comments.where(parent_id: nil).includes(:user) %> <!-- n+1 problem solved -->
+            </p>
+            </div>
+        </div>
+    </div>
+</div>

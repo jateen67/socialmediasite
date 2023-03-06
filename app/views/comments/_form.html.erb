@@ -1,0 +1,10 @@
+<form action='<%= community_post_comments_path(community, post) %>' method='post'>
+    <% if !parent.nil? %>
+        <input type='hidden' name='comment[parent_id]' value='<%= parent.id %>'>  <!-- pass down the parent id if it exists-->
+    <% end %>
+    <textarea name='comment[body]' class='form-control' placeholder='max. 400 characters' maxlength='400' rows='5' required></textarea> <!-- comment[body] stores comment as hash -->
+    <button type='submit' value='Submit' class='btn btn-primary mt-3'><i class='fa fa-solid fa-paper-plane'></i> Submit</button>
+    <% if !parent.nil? %>
+        <button type='reset' value='Reset' class='btn btn-secondary mt-3 cancel'><i class="fa fa-solid fa-ban"></i> Cancel</button>
+    <% end %>
+</form>
